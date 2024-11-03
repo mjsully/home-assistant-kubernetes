@@ -26,7 +26,17 @@ You can find further details of the component in the attributes of the sensor. I
 
 ```{{ state_attr('sensor.daemonset_glances_glances', 'spec')["template"]["spec"]["containers"][0]["image"] }}```
 
-Each sensor will be created and deleted dynamically. For example if a deployments spawns another Pod, there will be another sensor in your Home-Assistant. If the Pod gets deleted, the sensor will be removed as well.
+Each sensor will be created and deleted dynamically. For example if a deployments spawns another Pod, there will be another sensor in your Home-Assistant. If the Pod gets deleted, the sensor will be removed as well. Another useful sensor to create is an apps list for your cluster, as defined below:
+```
+{% set states = states.sensor
+  | selectattr('attributes.device_class', 'eq', 'Pod')
+  | selectattr('attributes.metadata.labels.app', 'defined')
+  | map(attribute="attributes.metadata.labels.app")
+  | unique 
+  | list 
+  | sort %}
+{{states}}
+```
 
 ## Services
 
